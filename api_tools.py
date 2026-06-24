@@ -12,6 +12,9 @@ from mcp.server.fastmcp import FastMCP
 def register_api_tools(mcp: FastMCP, api_fn, err_fn):
     """Register all non-config API tools from OpenAPI specs."""
 
+    # Index populated after all tools are defined; keyed by tool name.
+    _api_index: Dict[str, Any] = {}
+
     class _M_aruba_central_firewallsessionlogsv1(BaseModel):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         site_id: str = Field(..., description="The ID of the site from which to retrieve the firewall session logs.")
@@ -6787,3 +6790,72 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
             return json.dumps(data, indent=2)
         except Exception as e:
             return err_fn(e)
+
+    # -----------------------------------------------------------------------
+    # Build _api_index from all _M_* model classes defined in this scope
+    # -----------------------------------------------------------------------
+
+    import inspect as _inspect
+
+    _local_vars = locals()
+    for _vname, _vval in list(_local_vars.items()):
+        if not (_vname.startswith("_M_") and _inspect.isclass(_vval) and issubclass(_vval, BaseModel)):
+            continue
+        _tool_name = _vname[3:]  # strip leading "_M_"
+        _fields_info = []
+        for _fname, _finfo in _vval.model_fields.items():
+            _fmeta = _finfo.metadata
+            _required = _finfo.is_required()
+            _default = None if _required else (
+                _finfo.default if _finfo.default is not None else None
+            )
+            _annotation = _finfo.annotation
+            _type_str = getattr(_annotation, "__name__", None) or str(_annotation)
+            _fields_info.append({
+                "name": _fname,
+                "type": _type_str,
+                "required": _required,
+                "default": _default,
+                "description": _finfo.description or "",
+            })
+        _api_index[_tool_name] = {"tool": _tool_name, "fields": _fields_info}
+
+    # -----------------------------------------------------------------------
+    # aruba_central_api_describe — schema lookup for monitoring/api tools
+    # -----------------------------------------------------------------------
+
+    class _ApiDescribeInput(BaseModel):
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        tool_name: str = Field(
+            ...,
+            description="Full or partial tool name, e.g. 'aruba_central_getwlanthroughputtrendv1'. Prefix 'mcp__aruba-centralv2__' is stripped automatically."
+        )
+
+    @mcp.tool(name="aruba_central_api_describe",
+              annotations={"title": "Describe monitoring/API tool parameters", "readOnlyHint": True,
+                           "destructiveHint": False, "idempotentHint": True, "openWorldHint": False})
+    async def _api_describe(params: _ApiDescribeInput) -> str:
+        """Return full parameter definitions for any aruba_central monitoring/troubleshooting/services tool.
+
+        Shows every parameter with its type, required flag, default, and description.
+
+        Args:
+            params (_ApiDescribeInput): tool_name — full or partial tool name to look up.
+        Returns:
+            str: JSON with tool name and fields array.
+        """
+        name = params.tool_name.strip().replace("mcp__aruba-centralv2__", "")
+        entry = _api_index.get(name)
+        if not entry:
+            matches = [k for k in _api_index if name in k]
+            if not matches:
+                return json.dumps({
+                    "error": f"No schema found for '{name}'.",
+                    "available_count": len(_api_index),
+                    "hint": "Use a partial name to search, e.g. 'wlan' or 'gateway'."
+                })
+            if len(matches) == 1:
+                entry = _api_index[matches[0]]
+            else:
+                return json.dumps({"matches": matches})
+        return json.dumps(entry, indent=2)
