@@ -1010,16 +1010,36 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
     class _M_aruba_central_getwlanthroughputtrendv1(BaseModel):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         wlan_name: str = Field(..., description="wlan-name (path parameter)")
+        interface_type: str = Field(
+            default="WIRELESS",
+            description="Interface type of an access point. Required. Allowed values: WIRELESS, WIRED, LTE. Defaults to WIRELESS."
+        )
+        filter: Optional[str] = Field(
+            default=None,
+            description=(
+                "OData v4 filter string (max 256 chars). Supports only 'and' conjunction. "
+                "Supported fields: timestamp (operators: gt, lt; format: RFC 3339 UTC). "
+                "Example: \"timestamp gt '2024-01-01T00:00:00Z' and timestamp lt '2024-01-02T00:00:00Z'\""
+            )
+        )
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
 
     @mcp.tool(name="aruba_central_getwlanthroughputtrendv1",
               annotations={"title": "Get the throughput trend for a WLAN.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getwlanthroughputtrendv1(params: _M_aruba_central_getwlanthroughputtrendv1) -> str:
-        """Get the throughput trend for a WLAN..
+        """Get the throughput trend for a WLAN.
         Spec: monitoring | GET /network-monitoring/v1/wlans/{wlan-name}/throughput-trends
+        Query params: interface-type (required, default WIRELESS), filter, site-id, site-name
         """
         try:
             url = f"/network-monitoring/v1/wlans/{params.wlan_name}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "interface-type": params.interface_type,
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
