@@ -225,6 +225,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         pass
 
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        filter: Optional[str] = Field(default=None, description="OData filter string.")
+        sort: Optional[str] = Field(default=None, description="Sort expression.")
+        limit: Optional[int] = Field(default=None, description="Max results per page.")
+        next: Optional[str] = Field(default=None, description="Pagination cursor.")
     @mcp.tool(name="aruba_central_getdevicesv1",
               annotations={"title": "Get a list of devices", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getdevicesv1(params: _M_aruba_central_getdevicesv1) -> str:
@@ -233,7 +238,12 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = "/network-monitoring/v1/devices"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "sort": params.sort,
+                "limit": params.limit,
+                "next": params.next,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -434,6 +444,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
 
     class _M_aruba_central_gettopaccesspointsbywirelessusagev1(BaseModel):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        site_name: Optional[str] = Field(default=None, description="Name of the site.")
         limit: Optional[str] = Field(None, description="Specifies the maximum number of top access points returned in the response. The default value is 10.")
         start_at: Optional[str] = Field(None, description="Data that is required starting from this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. T")
         end_at: Optional[str] = Field(None, description="Data that is required up to this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. The times")
@@ -459,6 +471,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
 
     class _M_aruba_central_gettopaccesspointsbywiredusagev1(BaseModel):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        site_name: Optional[str] = Field(default=None, description="Name of the site.")
         limit: Optional[str] = Field(None, description="Specifies the maximum number of top access points returned in the response. The default value is 10.")
         start_at: Optional[str] = Field(None, description="Data that is required starting from this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. T")
         end_at: Optional[str] = Field(None, description="Data that is required up to this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. The times")
@@ -484,6 +498,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
 
     class _M_aruba_central_gettopaccesspointsbyusagev1(BaseModel):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        site_name: Optional[str] = Field(default=None, description="Name of the site.")
         limit: Optional[str] = Field(None, description="Specifies the maximum number of top access points returned in the response. The default value is 10.")
         start_at: Optional[str] = Field(None, description="Data that is required starting from this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. T")
         end_at: Optional[str] = Field(None, description="Data that is required up to this timestamp, provided in RFC 3339 (and ISO 8601) format in the  UTC+0 timezone. The times")
@@ -519,7 +535,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "sort": params.sort,
+                "site-assigned": params.site_assigned,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -530,6 +550,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         interface_type: str = Field(..., description="Interface type of an access point for which the data being requested.[WIRED, WIRELESS, LTE]")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointthroughputv1",
               annotations={"title": "Get throughput trend of an Access Point.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointthroughputv1(params: _M_aruba_central_getaccesspointthroughputv1) -> str:
@@ -551,6 +574,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointcpuutilizationv1",
               annotations={"title": "Get CPU utilization information for an Access Point", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointcpuutilizationv1(params: _M_aruba_central_getaccesspointcpuutilizationv1) -> str:
@@ -559,7 +585,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/cpu-utilization-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "serial-number": params.serial_number,
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -569,6 +599,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointmemoryutilizationv1",
               annotations={"title": "Get memory utilization information for an Access Point", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointmemoryutilizationv1(params: _M_aruba_central_getaccesspointmemoryutilizationv1) -> str:
@@ -577,7 +610,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/memory-utilization-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -587,6 +623,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointpowerconsumptionv1",
               annotations={"title": "Get power consumption information for an Access Point", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointpowerconsumptionv1(params: _M_aruba_central_getaccesspointpowerconsumptionv1) -> str:
@@ -595,7 +634,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/power-consumption-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -613,7 +655,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -624,6 +669,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         radio_number: str = Field(..., description="radio-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointradiothroughputv1",
               annotations={"title": "Get Access Point Radio throughput trend.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointradiothroughputv1(params: _M_aruba_central_getaccesspointradiothroughputv1) -> str:
@@ -632,7 +680,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios/{params.radio_number}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -643,6 +695,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         radio_number: str = Field(..., description="radio-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaprfchannelutilizationperformancev1",
               annotations={"title": "Get channel utilization information for a radio", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaprfchannelutilizationperformancev1(params: _M_aruba_central_getaprfchannelutilizationperformancev1) -> str:
@@ -651,7 +706,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios/{params.radio_number}/channel-utilization-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -662,6 +721,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         radio_number: str = Field(..., description="radio-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaprfchannelqualityperformancev1",
               annotations={"title": "Get channel quality information for a radio", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaprfchannelqualityperformancev1(params: _M_aruba_central_getaprfchannelqualityperformancev1) -> str:
@@ -670,7 +732,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios/{params.radio_number}/channel-quality-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -681,6 +747,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         radio_number: str = Field(..., description="radio-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaprfnoisefloorperformancev1",
               annotations={"title": "Get noise floor information for a radio", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaprfnoisefloorperformancev1(params: _M_aruba_central_getaprfnoisefloorperformancev1) -> str:
@@ -689,7 +758,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios/{params.radio_number}/noise-floor-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -700,6 +773,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         radio_number: str = Field(..., description="radio-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaprfframesperformancev1",
               annotations={"title": "Get transmission information for a radio", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaprfframesperformancev1(params: _M_aruba_central_getaprfframesperformancev1) -> str:
@@ -708,7 +784,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/radios/{params.radio_number}/frames-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -726,7 +806,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/ports"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -737,6 +821,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_index: str = Field(..., description="port-index (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointportthroughputv1",
               annotations={"title": "Get Access Point Port throughput trend.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointportthroughputv1(params: _M_aruba_central_getaccesspointportthroughputv1) -> str:
@@ -745,7 +832,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/ports/{params.port_index}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -756,6 +847,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_index: str = Field(..., description="port-index (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointportframesperformancev1",
               annotations={"title": "Get Access Point Port Frame Trends", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointportframesperformancev1(params: _M_aruba_central_getaccesspointportframesperformancev1) -> str:
@@ -764,7 +858,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/ports/{params.port_index}/frames-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -775,6 +873,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_index: str = Field(..., description="port-index (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointportcrcperformancev1",
               annotations={"title": "Get Access Point Port CRC Errors", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointportcrcperformancev1(params: _M_aruba_central_getaccesspointportcrcperformancev1) -> str:
@@ -783,7 +884,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/ports/{params.port_index}/crc-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -794,6 +899,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_index: str = Field(..., description="port-index (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointportcollisionsperformancev1",
               annotations={"title": "Get Access Point Port Collision Error", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointportcollisionsperformancev1(params: _M_aruba_central_getaccesspointportcollisionsperformancev1) -> str:
@@ -802,7 +910,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/ports/{params.port_index}/collisions-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -851,7 +963,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -862,6 +978,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_id: str = Field(..., description="tunnel-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointtunnelthroughputv1",
               annotations={"title": "Get throughput trend of an Access Point Tunnel.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointtunnelthroughputv1(params: _M_aruba_central_getaccesspointtunnelthroughputv1) -> str:
@@ -870,7 +989,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -881,6 +1004,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_id: str = Field(..., description="tunnel-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointprobelosstrendv1",
               annotations={"title": "Get packet loss trend of an Access Point Tunnel.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointprobelosstrendv1(params: _M_aruba_central_getaccesspointprobelosstrendv1) -> str:
@@ -889,7 +1015,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}/packet-loss-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -900,6 +1030,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_id: str = Field(..., description="tunnel-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointprobemostrendv1",
               annotations={"title": "Get MOS score trend of an Access Point Tunnel.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointprobemostrendv1(params: _M_aruba_central_getaccesspointprobemostrendv1) -> str:
@@ -908,7 +1041,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}/mos-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -919,6 +1056,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_id: str = Field(..., description="tunnel-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointprobejittertrendv1",
               annotations={"title": "Get jitter trend of an Access Point Tunnel.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointprobejittertrendv1(params: _M_aruba_central_getaccesspointprobejittertrendv1) -> str:
@@ -927,7 +1067,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}/jitter-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -938,6 +1082,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_id: str = Field(..., description="tunnel-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointprobelatencytrendv1",
               annotations={"title": "Get latency trend of an Access Point Tunnel.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointprobelatencytrendv1(params: _M_aruba_central_getaccesspointprobelatencytrendv1) -> str:
@@ -946,7 +1093,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/tunnels/{params.tunnel_id}/latency-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -964,7 +1115,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/wlans"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -975,6 +1130,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         wlan_name: str = Field(..., description="wlan-name (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
+        site_name: Optional[str] = Field(default=None, description="Name of the site (max 256 chars).")
     @mcp.tool(name="aruba_central_getaccesspointwlanthroughputv1",
               annotations={"title": "Get the throughput trend for a WLAN of an Access Point.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getaccesspointwlanthroughputv1(params: _M_aruba_central_getaccesspointwlanthroughputv1) -> str:
@@ -983,7 +1141,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/aps/{params.serial_number}/wlans/{params.wlan_name}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -993,6 +1155,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         wlan_name: str = Field(..., description="wlan-name (path parameter)")
 
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        serial_number: Optional[str] = Field(default=None, description="AP serial number.")
     @mcp.tool(name="aruba_central_getwlanv1",
               annotations={"title": "Get a specific WLAN by name", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getwlanv1(params: _M_aruba_central_getwlanv1) -> str:
@@ -1001,7 +1165,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/wlans/{params.wlan_name}"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -1044,6 +1212,7 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         cluster_id: str = Field(..., description="cluster-id (path parameter)")
 
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
     @mcp.tool(name="aruba_central_getswarmv1",
               annotations={"title": "Get a Swarm details", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getswarmv1(params: _M_aruba_central_getswarmv1) -> str:
@@ -1052,7 +1221,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/swarms/{params.cluster_id}"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "serial-number": params.serial_number,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -1119,7 +1291,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/sitemaps/{params.site_id}/network-devices-deployed"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("POST", url, params=p, json=params.body or {})
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -1138,7 +1312,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/sitemaps/{params.site_id}/network-devices-undeploy"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("POST", url, params=p, json=params.body or {})
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -1183,7 +1360,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/sitemaps/{params.site_id}/network-devices-assigned"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("POST", url, params=p, json=params.body or {})
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -1228,7 +1408,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/sitemaps/{params.site_id}/network-devices-planned"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "site-name": params.site_name,
+            }.items() if v is not None}
             data = await api_fn("POST", url, params=p, json=params.body or {})
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2204,6 +2387,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_name: str = Field(..., description="tunnel-name (path parameter)")
 
+        start_at: Optional[str] = Field(default=None, description="Start time (RFC 3339 UTC).")
+        end_at: Optional[str] = Field(default=None, description="End time (RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getgatewaytunneldetailv1",
               annotations={"title": "Gateway tunnel detail", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaytunneldetailv1(params: _M_aruba_central_getgatewaytunneldetailv1) -> str:
@@ -2212,7 +2397,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/tunnels/{params.tunnel_name}"
-            p = {}
+            p = {k: v for k, v in {
+                "start-at": params.start_at,
+                "end-at": params.end_at,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2251,6 +2439,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_number: str = Field(..., description="port-number (path parameter)")
 
+        start_at: Optional[str] = Field(default=None, description="Start time (RFC 3339 UTC).")
+        end_at: Optional[str] = Field(default=None, description="End time (RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getgatewayportdetailv1",
               annotations={"title": "Gateway port detail", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayportdetailv1(params: _M_aruba_central_getgatewayportdetailv1) -> str:
@@ -2259,7 +2449,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/ports/{params.port_number}"
-            p = {}
+            p = {k: v for k, v in {
+                "start-at": params.start_at,
+                "end-at": params.end_at,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2375,6 +2568,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayhardwarecpuutilizationv1",
               annotations={"title": "Get gateway CPU utilization trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayhardwarecpuutilizationv1(params: _M_aruba_central_getgatewayhardwarecpuutilizationv1) -> str:
@@ -2383,7 +2578,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/cpu-utilization-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2393,6 +2591,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayhardwarememoryutilizationv1",
               annotations={"title": "Get gateway memory utilization trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayhardwarememoryutilizationv1(params: _M_aruba_central_getgatewayhardwarememoryutilizationv1) -> str:
@@ -2401,7 +2601,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/memory-utilization-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2412,6 +2615,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_name: str = Field(..., description="tunnel-name (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewaytunnelthroughputtrendv1",
               annotations={"title": "Get gateway tunnel throughput trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaytunnelthroughputtrendv1(params: _M_aruba_central_getgatewaytunnelthroughputtrendv1) -> str:
@@ -2420,7 +2625,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/tunnels/{params.tunnel_name}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2431,6 +2639,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_name: str = Field(..., description="tunnel-name (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewaytunnelstatustrendv1",
               annotations={"title": "Get gateway tunnel status trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaytunnelstatustrendv1(params: _M_aruba_central_getgatewaytunnelstatustrendv1) -> str:
@@ -2439,7 +2649,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/tunnels/{params.tunnel_name}/status-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2449,6 +2662,7 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         cluster_name: str = Field(..., description="cluster-name (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getclustercapacitytrendv1",
               annotations={"title": "Get cluster capacity trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getclustercapacitytrendv1(params: _M_aruba_central_getclustercapacitytrendv1) -> str:
@@ -2457,7 +2671,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/clusters/{params.cluster_name}/capacity-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2468,6 +2684,7 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         cluster_name: str = Field(..., description="cluster-name (path parameter)")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getclustermembercapacitytrendv1",
               annotations={"title": "Get cluster member capacity trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getclustermembercapacitytrendv1(params: _M_aruba_central_getclustermembercapacitytrendv1) -> str:
@@ -2476,7 +2693,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/clusters/{params.cluster_name}/capacity-trends/{params.serial_number}"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2487,6 +2706,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_number: str = Field(..., description="port-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayportthroughputtrendv1",
               annotations={"title": "Get gateway port throughput trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayportthroughputtrendv1(params: _M_aruba_central_getgatewayportthroughputtrendv1) -> str:
@@ -2495,7 +2716,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/ports/{params.port_number}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2559,6 +2783,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewaywanavailabilitytrendsv1",
               annotations={"title": "Get gateway WAN availability trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaywanavailabilitytrendsv1(params: _M_aruba_central_getgatewaywanavailabilitytrendsv1) -> str:
@@ -2567,7 +2793,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/wan-availability-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2577,6 +2806,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayvpnavailabilitytrendsv1",
               annotations={"title": "Get gateway VPN availability trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayvpnavailabilitytrendsv1(params: _M_aruba_central_getgatewayvpnavailabilitytrendsv1) -> str:
@@ -2585,7 +2816,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/vpn-availability-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2596,6 +2830,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_number: str = Field(..., description="port-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayframestrendv1",
               annotations={"title": "Get gateway port frames trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayframestrendv1(params: _M_aruba_central_getgatewayframestrendv1) -> str:
@@ -2604,7 +2840,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/ports/{params.port_number}/frames-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2615,6 +2854,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_number: str = Field(..., description="port-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayframeserrorstrendv1",
               annotations={"title": "Get gateway port frames errors trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayframeserrorstrendv1(params: _M_aruba_central_getgatewayframeserrorstrendv1) -> str:
@@ -2623,7 +2864,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/ports/{params.port_number}/frames-errors-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2634,6 +2878,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         port_number: str = Field(..., description="port-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayframespacketstrendv1",
               annotations={"title": "Get gateway port frames packets trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayframespacketstrendv1(params: _M_aruba_central_getgatewayframespacketstrendv1) -> str:
@@ -2642,7 +2888,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/ports/{params.port_number}/frames-packets-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2653,6 +2902,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         tunnel_name: str = Field(..., description="tunnel-name (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewaytunneldroppedpacketstrendv1",
               annotations={"title": "Get gateway tunnel dropped packets trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaytunneldroppedpacketstrendv1(params: _M_aruba_central_getgatewaytunneldroppedpacketstrendv1) -> str:
@@ -2661,7 +2912,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/tunnels/{params.tunnel_name}/dropped-packet-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2690,6 +2944,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         link_tag: str = Field(..., description="link-tag (path parameter)")
 
+        start_at: Optional[str] = Field(default=None, description="Start time (RFC 3339 UTC).")
+        end_at: Optional[str] = Field(default=None, description="End time (RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getgatewaywaninterfacedetailv1",
               annotations={"title": "Get details of gateway uplink", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaywaninterfacedetailv1(params: _M_aruba_central_getgatewaywaninterfacedetailv1) -> str:
@@ -2698,7 +2954,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}"
-            p = {}
+            p = {k: v for k, v in {
+                "start-at": params.start_at,
+                "end-at": params.end_at,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2709,6 +2968,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         link_tag: str = Field(..., description="link-tag (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayuplinkthroughputtrendsv1",
               annotations={"title": "Get gateway uplink throughput trend", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayuplinkthroughputtrendsv1(params: _M_aruba_central_getgatewayuplinkthroughputtrendsv1) -> str:
@@ -2717,7 +2978,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}/throughput-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2728,6 +2992,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         link_tag: str = Field(..., description="link-tag (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewaywancompressiontrendsv1",
               annotations={"title": "Get gateway WAN compression trends for an uplink", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewaywancompressiontrendsv1(params: _M_aruba_central_getgatewaywancompressiontrendsv1) -> str:
@@ -2736,7 +3002,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}/wan-compression-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2747,6 +3016,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         link_tag: str = Field(..., description="link-tag (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayuplinkprobelistv1",
               annotations={"title": "List gateway uplink probes", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayuplinkprobelistv1(params: _M_aruba_central_getgatewayuplinkprobelistv1) -> str:
@@ -2755,7 +3026,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}/probes"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2766,6 +3040,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         link_tag: str = Field(..., description="link-tag (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayuplinkwanavailabilitytrendsv1",
               annotations={"title": "Get WAN availability trends of gateway uplink", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayuplinkwanavailabilitytrendsv1(params: _M_aruba_central_getgatewayuplinkwanavailabilitytrendsv1) -> str:
@@ -2774,7 +3050,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}/wan-availability-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2785,6 +3064,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         serial_number: str = Field(..., description="serial-number (path parameter)")
         vlan_id: str = Field(..., description="vlan-id (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayuplinkvpnavailabilitytrendsv1",
               annotations={"title": "Get VPN availability trends of gateway uplink", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayuplinkvpnavailabilitytrendsv1(params: _M_aruba_central_getgatewayuplinkvpnavailabilitytrendsv1) -> str:
@@ -2793,7 +3074,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.vlan_id}/vpn-availability-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2803,6 +3087,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayhardwaretemperaturev1",
               annotations={"title": "Get gateway hardware temperature trends", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayhardwaretemperaturev1(params: _M_aruba_central_getgatewayhardwaretemperaturev1) -> str:
@@ -2811,7 +3097,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/hardware-temperature-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -2877,6 +3166,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         link_tag: str = Field(..., description="link-tag (path parameter)")
         probe: str = Field(..., description="probe (path parameter)")
 
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site (max 16 chars).")
     @mcp.tool(name="aruba_central_getgatewayuplinkperformancetrendsv1",
               annotations={"title": "Get uplink probe performance trends", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getgatewayuplinkperformancetrendsv1(params: _M_aruba_central_getgatewayuplinkperformancetrendsv1) -> str:
@@ -2885,7 +3176,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/gateways/{params.serial_number}/uplinks/{params.link_tag}/probes/{params.probe}/performance-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3133,6 +3427,7 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         filter: Optional[str] = Field(None, description="OData Version 4.0 filter string (limited functionality). Supports only 'and' conjunction ('or' and 'not' are NOT support")
         sort: Optional[str] = Field(None, description="Comma separated list of sort expressions. Each sort expression is a property name optionally followed by a direction ind")
 
+        search: Optional[str] = Field(default=None, description="Search string to filter results.")
     @mcp.tool(name="aruba_central_listinterfacesv1",
               annotations={"title": "Returns interface details for the given serial or stack id.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_listinterfacesv1(params: _M_aruba_central_listinterfacesv1) -> str:
@@ -3161,6 +3456,7 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         filter: Optional[str] = Field(None, description="OData Version 4.0 filter string (limited functionality). Supports only 'and' conjunction ('or' and 'not' are NOT support")
         sort: Optional[str] = Field(None, description="Comma separated list of sort expressions. Each sort expression is a property name optionally followed by a direction ind")
 
+        search: Optional[str] = Field(default=None, description="Search string to filter results.")
     @mcp.tool(name="aruba_central_listvlansv1",
               annotations={"title": "Returns vlans details for the given serial or stack id.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_listvlansv1(params: _M_aruba_central_listvlansv1) -> str:
@@ -3185,6 +3481,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         pass
 
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string.")
     @mcp.tool(name="aruba_central_gettopnswitchconnectivitytrendsv1",
               annotations={"title": "Returns Top-n interface trends for the tenant-id and given s", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_gettopnswitchconnectivitytrendsv1(params: _M_aruba_central_gettopnswitchconnectivitytrendsv1) -> str:
@@ -3193,7 +3492,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = "/network-monitoring/v1/switches/topn-interface-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "search": params.search,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3203,6 +3504,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        interface_id: Optional[str] = Field(default=None, description="Interface ID.")
+        uplink: Optional[bool] = Field(default=None, description="Filter by uplink interfaces.")
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string.")
     @mcp.tool(name="aruba_central_getswitchconnectivityrendsv1",
               annotations={"title": "Returns interface trends for the given serial and site.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getswitchconnectivityrendsv1(params: _M_aruba_central_getswitchconnectivityrendsv1) -> str:
@@ -3211,7 +3516,9 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/switches/{params.serial_number}/interface-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "search": params.search,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3221,6 +3528,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         serial_number: str = Field(..., description="serial-number (path parameter)")
 
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
+        filter: Optional[str] = Field(default=None, description="OData v4 filter string. Supports only 'and'. Supported: timestamp (gt/lt, RFC 3339 UTC).")
     @mcp.tool(name="aruba_central_getswitchhardwaretrendsv1",
               annotations={"title": "Returns hardware trends for the given serial and site.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getswitchhardwaretrendsv1(params: _M_aruba_central_getswitchhardwaretrendsv1) -> str:
@@ -3229,7 +3538,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/switches/{params.serial_number}/hardware-trends"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3247,7 +3559,12 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/switches/{params.serial_number}/interface-poe"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "interface-id": params.interface_id,
+                "uplink": params.uplink,
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3265,7 +3582,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-monitoring/v1/switches/{params.serial_number}/vsx"
-            p = {}
+            p = {k: v for k, v in {
+                "site-id": params.site_id,
+                "filter": params.filter,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3275,6 +3595,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         pass
 
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        filter: Optional[str] = Field(default=None, description="OData filter string.")
+        sort: Optional[str] = Field(default=None, description="Sort expression.")
+        limit: Optional[int] = Field(default=None, description="Max results per page.")
+        next: Optional[str] = Field(default=None, description="Pagination cursor.")
     @mcp.tool(name="aruba_central_listtenantsv1",
               annotations={"title": "Get all MSP tenants information.", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_listtenantsv1(params: _M_aruba_central_listtenantsv1) -> str:
@@ -3283,7 +3608,12 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = "/network-msp/v1/list-tenants"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "sort": params.sort,
+                "limit": params.limit,
+                "next": params.next,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3643,6 +3973,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         pass
 
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        start_at: Optional[str] = Field(default=None, description="Start time (RFC 3339 UTC).")
+        end_at: Optional[str] = Field(default=None, description="End time (RFC 3339 UTC).")
+        site_id: Optional[str] = Field(default=None, description="UUID of the site.")
     @mcp.tool(name="aruba_central_getlatrendsforapiv1",
               annotations={"title": "Get all the trends of a client for a tenant or a site for a ", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getlatrendsforapiv1(params: _M_aruba_central_getlatrendsforapiv1) -> str:
@@ -3651,7 +3985,11 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = "/network-services/v1/location-analytics/trends"
-            p = {}
+            p = {k: v for k, v in {
+                "start-at": params.start_at,
+                "end-at": params.end_at,
+                "site-id": params.site_id,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -3661,6 +3999,12 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
         pass
 
+        model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+        start_at: Optional[str] = Field(default=None, description="Start time (RFC 3339 UTC).")
+        end_at: Optional[str] = Field(default=None, description="End time (RFC 3339 UTC).")
+        limit: Optional[int] = Field(default=None, description="Max results per page.")
+        offset: Optional[int] = Field(default=None, description="Pagination offset.")
+        sort: Optional[str] = Field(default=None, description="Sort expression.")
     @mcp.tool(name="aruba_central_getlasitesinsightsforapiv1",
               annotations={"title": "Get the insights for each site of a tenant for a given time ", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getlasitesinsightsforapiv1(params: _M_aruba_central_getlasitesinsightsforapiv1) -> str:
@@ -3669,7 +4013,13 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = "/network-services/v1/location-analytics/sites/insights"
-            p = {}
+            p = {k: v for k, v in {
+                "start-at": params.start_at,
+                "end-at": params.end_at,
+                "limit": params.limit,
+                "offset": params.offset,
+                "sort": params.sort,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
@@ -4524,6 +4874,8 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         limit: Optional[str] = Field(None, description="Denotes the maximum number of items returned in the response. Maximum value is 1000.")
         next: Optional[str] = Field(None, description="Specifies the pagination cursor for the next page of resources. The minimum value is 1.")
 
+        filter: Optional[str] = Field(default=None, description="OData filter string.")
+        sort: Optional[str] = Field(default=None, description="Sort expression.")
     @mcp.tool(name="aruba_central_getfirmwaredetailslistv1",
               annotations={"title": "Get device list with firmware details", "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": True})
     async def _aruba_central_getfirmwaredetailslistv1(params: _M_aruba_central_getfirmwaredetailslistv1) -> str:
@@ -4607,7 +4959,10 @@ def register_api_tools(mcp: FastMCP, api_fn, err_fn):
         """
         try:
             url = f"/network-services/v1/sitemaps/{params.site_id}/floors/{params.floor_id}/ap-ranging-scans/{params.scan_id}"
-            p = {}
+            p = {k: v for k, v in {
+                "filter": params.filter,
+                "sort": params.sort,
+            }.items() if v is not None}
             data = await api_fn("GET", url, params=p)
             return json.dumps(data, indent=2)
         except Exception as e:
