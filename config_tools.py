@@ -23218,21 +23218,25 @@ def register_config_tools(mcp: FastMCP, api_fn, err_fn):
             return err_fn(e)
 
     @mcp.tool(name="aruba_central_config_create_site_collections",
-              annotations={"title": "Add sites to existing site-collection", "readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": True})
+              annotations={"title": "Create site-collection", "readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": True})
     async def _aruba_central_config_create_site_collections_fn(params: ConfigWriteInput) -> str:
-        """Add sites to existing site-collection.
+        """Create site-collection.
 
-        Path: POST /network-config/v1/site-collection-add-sites
+        This API will create a site-collection with or without sites associated.
+        To create an empty site-collection (without any site associated) do not pass the siteIds list.
+
+        Path: POST /network-config/v1/site-collections
         Call aruba_central_config_describe(tool_name=\"aruba_central_config_create_site_collections\") for full schema.
 
-        Body fields (2 total):
-        siteCollectionId (string) — site collection id
-        siteIds (array)
+        Body fields (3 total):
+        scopeName (string) — Name of the site-collection scope. [MANDATORY]
+        description (string) — Description of the site-collection.
+        siteIds (array) — List of site IDs to associate with the site-collection. Omit to create an empty site-collection.
         """
         try:
             p = _cfg_params(scope_id=params.scope_id, object_type=params.object_type,
                             device_function=params.device_function)
-            data = await api_fn("POST", "/network-config/v1/site-collection-add-sites", params=p, json=params.body)
+            data = await api_fn("POST", "/network-config/v1/site-collections", params=p, json=params.body)
             return json.dumps(data, indent=2)
         except Exception as e:
             return err_fn(e)
